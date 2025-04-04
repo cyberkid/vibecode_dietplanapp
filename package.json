@@ -1,0 +1,12 @@
+{
+  "name": "vegetarian-diet-planner",
+  "version": "1.0.0",
+  "description": "A personalized diet planner with voice input and GPT-4o integration",
+  "scripts": {
+    "start": "npx serve"
+  },
+  "dependencies": {
+    "serve": "^14.0.0",
+    "vercel": "^41.4.1"
+  }
+}

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Diet Planner</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <h1>Diet Planner</h1>
+            </div>
+            <div class="user-greeting hidden" id="userGreeting">
+                <p>Welcome back, <span id="userName">Friend</span>!</p>
+                <button id="editProfileBtn" class="btn btn-small">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <!-- First Visit Form -->
+            <section id="profileSetupSection" class="card">
+                <h2>Set Up Your Profile</h2>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <input type="number" id="age" min="1" max="120" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" required>
+                                <option value="">Select</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="non-binary">Non-binary</option>
+                                <option value="prefer-not-to-say">Prefer not to say</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="weight">Weight (kg)</label>
+                            <input type="number" id="weight" min="20" max="300" step="0.1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="height">Height (cm)</label>
+                            <input type="number" id="height" min="50" max="250" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="allergies">Allergies (separate with commas)</label>
+                        <div class="input-with-button">
+                            <input type="text" id="allergies" placeholder="e.g., peanuts, shellfish, dairy">
+                            <button type="button" id="allergiesVoiceBtn" class="voice-btn">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dietaryPreference">Dietary Preference</label>
+                        <select id="dietaryPreference" required>
+                            <option value="">Select</option>
+                            <option value="omnivore">Omnivore (Eats Everything)</option>
+                            <option value="vegetarian">Vegetarian</option>
+                            <option value="vegan">Vegan</option>
+                            <option value="pescatarian">Pescatarian</option>
+                            <option value="flexitarian">Flexitarian</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dietType">Preferred Diet Type</label>
+                        <select id="dietType" required>
+                            <option value="">Select</option>
+                            <option value="balanced">Balanced</option>
+                            <option value="mediterranean">Mediterranean</option>
+                            <option value="keto">Ketogenic</option>
+                            <option value="paleo">Paleo</option>
+                            <option value="low-carb">Low Carb</option>
+                            <option value="high-protein">High Protein</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fitnessGoal">Fitness Goal</label>
+                        <select id="fitnessGoal" required>
+                            <option value="">Select</option>
+                            <option value="weight-loss">Weight Loss</option>
+                            <option value="muscle-gain">Muscle Gain</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="general-health">General Health</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fridgeContents">What's in your fridge? (separate with commas)</label>
+                        <div class="input-with-button">
+                            <textarea id="fridgeContents" rows="3" placeholder="e.g., eggs, spinach, chicken breast, rice, olive oil"></textarea>
+                            <button type="button" id="fridgeVoiceBtn" class="voice-btn">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden API Key field -->
+                    <div class="form-group api-key-section hidden">
+                        <label for="apiKey">OpenAI API Key</label>
+                        <input type="password" id="apiKey" placeholder="sk-..." required>
+                        <p class="help-text">Your API key is stored locally on your device and never sent to our servers.</p>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Save Profile & Generate Plan</button>
+                </form>
+            </section>
+
+            <!-- Loading Indicator -->
+            <div id="loadingSection" class="hidden">
+                <div class="loader"></div>
+                <p>Generating your personalized meal plan...</p>
+                <progress id="progressBar" value="0" max="100"></progress>
+            </div>
+
+            <!-- Diet Plan Display -->
+            <section id="dietPlanSection" class="hidden">
+                <div class="diet-plan-header">
+                    <h2>Your Meal Plan for <span id="currentDate"></span></h2>
+                    <div class="action-buttons">
+                        <button id="updateFridgeBtn" class="btn">
+                            <i class="fas fa-refrigerator"></i> Update Fridge
+                        </button>
+                        <button id="regeneratePlanBtn" class="btn">
+                            <i class="fas fa-sync-alt"></i> Regenerate Plan
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="meals-container">
+                    <div id="breakfastSection" class="meal-card">
+                        <h3><i class="fas fa-sun"></i> Breakfast</h3>
+                        <div id="breakfastContent" class="meal-content"></div>
+                    </div>
+                    
+                    <div id="lunchSection" class="meal-card">
+                        <h3><i class="fas fa-cloud-sun"></i> Lunch</h3>
+                        <div id="lunchContent" class="meal-content"></div>
+                    </div>
+                    
+                    <div id="dinnerSection" class="meal-card">
+                        <h3><i class="fas fa-moon"></i> Dinner</h3>
+                        <div id="dinnerContent" class="meal-content"></div>
+                    </div>
+                    
+                    <div id="snacksSection" class="meal-card">
+                        <h3><i class="fas fa-apple-alt"></i> Snacks</h3>
+                        <div id="snacksContent" class="meal-content"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Update Fridge Modal -->
+            <div id="fridgeModal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h2>Update Fridge Contents</h2>
+                    <form id="fridgeForm">
+                        <div class="form-group">
+                            <label for="newFridgeContents">What's in your fridge now? (separate with commas)</label>
+                            <div class="input-with-button">
+                                <textarea id="newFridgeContents" rows="5"></textarea>
+                                <button type="button" id="fridgeModalVoiceBtn" class="voice-btn">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update & Regenerate Plan</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Diet Planner App | Uses OpenAI API for meal suggestions</p>
+        </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
